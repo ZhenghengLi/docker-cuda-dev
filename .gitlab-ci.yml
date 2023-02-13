@@ -1,0 +1,32 @@
+default:
+  image: docker:20.10.7
+  services:
+    - docker:20.10.7-dind
+  tags:
+    - kubernetes
+  before_script:
+    - until docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; do sleep 1; done
+
+variables:
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - build
+
+build-latest:
+  stage: build
+  script:
+    - IMAGE_NAME=$CI_REGISTRY_IMAGE:latest
+    - >-
+      echo "Start time: $(date)"
+    - >-
+      docker build
+      --pull -t $IMAGE_NAME .
+    - docker push $IMAGE_NAME
+    - >-
+      echo "Finish time: $(date)"
+
