@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cuda-dev
+  namespace: diffraflow
+spec:
+  selector:
+    matchLabels:
+      name: cuda-dev
+  template:
+    metadata:
+      labels:
+        name: cuda-dev
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 1017
+        runAsGroup: 1010
+      imagePullSecrets:
+        - name: gitlab-registry-lizhengheng
+      containers:
+        - name: cuda-dev
+          image: registry.physky.org/lizhengheng/docker-cuda-dev:latest
+          command:
+            - sleep
+            - 1000d
